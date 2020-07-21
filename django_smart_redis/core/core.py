@@ -1,7 +1,10 @@
 import json
 import redis
+import logging
 
 from ..settings import redis_connect
+
+logger = logging.getLogger(__name__)
 
 
 class EzRedis(redis.StrictRedis):
@@ -40,11 +43,10 @@ class EzRedis(redis.StrictRedis):
 def clear_cache(key: str):
     try:
         with EzRedis(**redis_connect) as r:
-            print(f"Delete cache '{key}'")
+            logger.debug(f"Delete cache '{key}'")
             for key in r.scan_iter(f"cache:{key}*"):
-                print(f">>> Delete key '{key.decode()}'")
+                logger.debug(f">>> Delete key '{key.decode()}'")
                 r.delete(key)
 
-    except redis.exceptions.ConnectionError:
-        pass
-
+    except redis.exceptions.ConnectionError as e:
+        logger.error(e)

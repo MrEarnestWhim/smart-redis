@@ -1,4 +1,5 @@
 import functools
+import logging
 
 import redis
 import hashlib
@@ -7,6 +8,8 @@ from django.http import HttpResponse
 from .core import EzRedis
 from ..models import SmartCache
 from ..settings import redis_connect
+
+logger = logging.getLogger(__name__)
 
 
 def get_key_hash(key, qs_hash):
@@ -38,6 +41,7 @@ def out_cache(argument):
                     )
 
             except redis.exceptions.ConnectionError:
+                logger.error("!!! Cache not active !!!")
                 return method(self, *args, **kwargs)
 
             return response

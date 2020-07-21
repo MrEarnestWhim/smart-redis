@@ -3,7 +3,7 @@ from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 
-from django_smart_redis.core.core import clear_cache
+from .core.core import clear_cache
 
 
 class SmartCache(models.Model):
