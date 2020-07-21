@@ -4,7 +4,6 @@ import logging
 from django.apps import AppConfig
 
 from .core.core import EzRedis
-from .models import SmartCache
 from .settings import redis_connect, namespace
 
 logger = logging.getLogger(__name__)
@@ -15,6 +14,8 @@ class DjangoSmartRedisConfig(AppConfig):
     verbose_name = "Smart Cache"
 
     def ready(self):
+        from .models import SmartCache
+
         try:
             with EzRedis(**redis_connect) as r:
                 logger.debug("Scan and delete cache...")
