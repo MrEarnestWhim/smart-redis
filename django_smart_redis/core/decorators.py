@@ -12,10 +12,15 @@ from ..settings import redis_connect
 logger = logging.getLogger(__name__)
 
 
-def get_key_hash(key, qs_hash):
+def get_key_hash(key, qs_hash) -> str:
     if qs_hash:
         return key + ':' + qs_hash
     return key
+
+
+def get_content_type(response) -> str:
+    headers = getattr(response, '_headers', {})
+    return headers.get('content-type')[1] if headers.get('content-type') else ''
 
 
 def out_cache(argument):
@@ -30,14 +35,20 @@ def out_cache(argument):
                 with EzRedis(**redis_connect) as r:
                     key = argument
                     if int(r.exists(get_key_hash(key, qs_hash))):
-                        return HttpResponse(r.get(get_key_hash(key, qs_hash)), content_type='application/json')
+                        return HttpResponse(
+                            r.get(get_key_hash(key, qs_hash)),
+                            content_type=r.get(key + ':content_type')
+                        )
 
                     response = method(self, *args, **kwargs)
+
                     r.set(get_key_hash(key, qs_hash), response.content)
+                    r.set(key + ':content_type', get_content_type(response))
 
                     SmartCache._default_manager.create(
                         key=get_key_hash(key, qs_hash),
-                        value=response.content.decode()
+                        value=response.content.decode(),
+                        content_type=get_content_type(response)
                     )
 
             except redis.exceptions.ConnectionError:

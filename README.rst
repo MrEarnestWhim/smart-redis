@@ -8,13 +8,14 @@ Quick start
 -----------
 0. Install packages::
 
-    pip install smart-redis
+    pip install django-smart-redis
 
 1. Add "django_smart_redis" to your INSTALLED_APPS setting like this::
 
     INSTALLED_APPS = [
         ...
         'django_smart_redis',
+        ...
     ]
 
 2. Settings::
