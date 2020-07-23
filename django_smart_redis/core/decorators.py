@@ -23,17 +23,17 @@ def get_content_type(response) -> str:
     return headers.get('content-type')[1] if headers.get('content-type') else ''
 
 
-def out_cache(argument):
+def out_cache(key):
     def decorate(method):
         @functools.wraps(method)
         def wrapper(self, *args, **kwargs):
             qs_hash = ''
+            qs = self.request.META.get('QUERY_STRING')
             if self.request.META.get('QUERY_STRING'):
-                qs_hash = hashlib.sha512(self.request.META.get('QUERY_STRING').encode()).hexdigest()
+                qs_hash = hashlib.sha512(qs.encode()).hexdigest()
 
             try:
                 with EzRedis(**redis_connect) as r:
-                    key = argument
                     if int(r.exists(get_key_hash(key, qs_hash))):
                         return HttpResponse(
                             r.get(get_key_hash(key, qs_hash)),
@@ -48,7 +48,8 @@ def out_cache(argument):
                     SmartCache._default_manager.create(
                         key=get_key_hash(key, qs_hash),
                         value=response.content.decode(),
-                        content_type=get_content_type(response)
+                        content_type=get_content_type(response),
+                        qs=qs,
                     )
 
             except redis.exceptions.ConnectionError:

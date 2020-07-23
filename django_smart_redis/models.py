@@ -9,6 +9,7 @@ from .core.core import clear_cache
 class SmartCache(models.Model):
     key = models.TextField(verbose_name=_('Key'))
     value = models.TextField(verbose_name=_('Value'))
+    qs = models.TextField(verbose_name=_('Query String'))
     content_type = models.TextField(verbose_name=_('Content Type'))
 
     class Meta:
