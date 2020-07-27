@@ -23,7 +23,7 @@ def get_content_type(response) -> str:
     return headers.get('content-type')[1] if headers.get('content-type') else ''
 
 
-def out_cache(key):
+def smart_cache(key):
     def decorate(method):
         @functools.wraps(method)
         def wrapper(self, *args, **kwargs):
