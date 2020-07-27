@@ -40,13 +40,20 @@ class EzRedis(redis.StrictRedis):
         return super().get(self.__get_name(key))
 
 
-def clear_cache(key: str):
-    try:
-        with EzRedis(**redis_connect) as r:
-            logger.debug(f"Delete cache '{key}'")
-            for key in r.scan_iter(f"cache:{key}*"):
-                logger.debug(f">>> Delete key '{key.decode()}'")
-                r.delete(key)
+def clear_cache(key: (str, list, tuple)):
+    def _clear(_key):
+        try:
+            with EzRedis(**redis_connect) as r:
+                logger.debug(f"Delete cache '{_key}'")
+                for __key in r.scan_iter(f"cache:{_key}*"):
+                    logger.debug(f">>> Delete key '{__key.decode()}'")
+                    r.delete(__key)
 
-    except redis.exceptions.ConnectionError as e:
-        logger.error(e)
+        except redis.exceptions.ConnectionError as e:
+            logger.error(e)
+
+    if isinstance(key, (list, tuple)):
+        for item in key:
+            _clear(item)
+    else:
+        _clear(key)

@@ -58,7 +58,7 @@ SMART REDIS
     from django_smart_redis.core.decorators import out_cache
 
     class ExampleView(View):
-        @out_cache("Название_вашего_ключа")
+        @smart_cache("Название_вашего_ключа")
         def get(self, request, *args, **kwargs):
             category = ExampleModel.objects.filter(...)
             return JsonResponse({"data": category.to_json()})

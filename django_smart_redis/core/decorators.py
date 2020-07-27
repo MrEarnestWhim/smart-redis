@@ -4,6 +4,7 @@ import logging
 import redis
 import hashlib
 from django.http import HttpResponse
+from django.template.response import ContentNotRenderedError
 
 from .core import EzRedis
 from ..models import SmartCache
@@ -42,12 +43,17 @@ def smart_cache(key):
 
                     response = method(self, *args, **kwargs)
 
-                    r.set(get_key_hash(key, qs_hash), response.content)
+                    try:
+                        content = response.content.decode()
+                    except ContentNotRenderedError:
+                        content = response.rendered_content
+
+                    r.set(get_key_hash(key, qs_hash), content)
                     r.set(key + ':content_type', get_content_type(response))
 
                     SmartCache._default_manager.create(
                         key=get_key_hash(key, qs_hash),
-                        value=response.content.decode(),
+                        value=content,
                         content_type=get_content_type(response),
                         qs=qs,
                     )
