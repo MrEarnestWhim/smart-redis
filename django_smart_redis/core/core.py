@@ -25,7 +25,7 @@ class EzRedis(redis.StrictRedis):
         return super().set(self.__get_name(name), value, *args, **kwargs)
 
     def ez_get(self, key: str) -> str:
-        return self.get(self.__get_name(key)).decode()
+        return self.get(key).decode()
 
     def ez_get_json(self, key: str) -> dict:
         return json.loads(self.ez_get(key))
