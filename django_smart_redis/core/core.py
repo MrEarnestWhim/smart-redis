@@ -2,7 +2,7 @@ import json
 import redis
 import logging
 
-from ..settings import redis_connect
+from ..settings import redis_connect, namespace
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ def clear_cache(key: (str, list, tuple)):
         try:
             with EzRedis(**redis_connect) as r:
                 logger.debug(f"Delete cache '{_key}'")
-                for __key in r.scan_iter(f"cache:{_key}*"):
+                for __key in r.scan_iter(f"{namespace}:{_key}*"):
                     logger.debug(f">>> Delete key '{__key.decode()}'")
                     r.delete(__key)
 
